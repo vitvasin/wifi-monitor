@@ -94,10 +94,14 @@ def sync_to_sheets(cfg, csv_file: Path, state_file: Path, logger):
     header = reader[0]
     data_rows = reader[1:]
 
-    # Always keep row 1 as the correct header
-    ws.update([header], "A1")
-
     new_rows = data_rows[last_synced:]
+
+    # Write header only when sheet is empty
+    sheet_rows = ws.get_all_values()
+    if not sheet_rows:
+        ws.append_row(header, value_input_option="RAW")
+        logger.info("Header written to sheet")
+
     if not new_rows:
         logger.debug("No new rows to sync")
         return
