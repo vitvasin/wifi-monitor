@@ -1,0 +1,17 @@
+[Unit]
+Description=WiFi Connection Monitor
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=smr
+WorkingDirectory=/home/smr/workspaces/wifi-monitor
+ExecStart=/home/smr/workspaces/wifi-monitor/.venv/bin/python3 /home/smr/workspaces/wifi-monitor/wifi_monitor.py
+Restart=on-failure
+RestartSec=15
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

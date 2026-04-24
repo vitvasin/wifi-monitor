@@ -1,0 +1,16 @@
+[monitor]
+robot_name = Ricecooker
+interval = 60
+internet_host = 8.8.8.8
+internet_port = 53
+timeout = 3
+log_level = INFO
+
+[sheets]
+enabled = true
+# auth_mode: service_account | oauth
+auth_mode = oauth
+credentials_file = credentials.json
+spreadsheet_id = 1wO1xlE4hVfx7JUitZ-9NvLZz41mdOictD3O2xHrl-6I
+worksheet_name = Sheet1
+sync_interval = 300

@@ -4,3 +4,5 @@ __pycache__/
 *$py.class
 .oauth_token.json
 logs/
+credentials.json
+config.ini
