@@ -27,7 +27,8 @@ CSV_FIELDS = [
 
 def load_config():
     cfg = configparser.ConfigParser()
-    cfg.read(CONFIG_FILE)
+    # config.local.ini overrides config.ini (robot-specific, gitignored)
+    cfg.read([CONFIG_FILE, BASE_DIR / "config.local.ini"])
     return cfg
 
 
