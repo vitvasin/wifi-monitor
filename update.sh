@@ -7,7 +7,9 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SERVICE_NAME="wifi-monitor"
 
 echo "==> Pulling latest code..."
-git -C "$SCRIPT_DIR" pull
+# Ensure we are on main branch (not detached HEAD)
+git -C "$SCRIPT_DIR" checkout main 2>/dev/null || git -C "$SCRIPT_DIR" checkout -b main --track origin/main
+git -C "$SCRIPT_DIR" pull origin main
 
 echo "==> Updating Python dependencies..."
 "$SCRIPT_DIR/.venv/bin/pip" install -q --upgrade -r "$SCRIPT_DIR/requirements.txt"
