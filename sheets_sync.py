@@ -136,7 +136,15 @@ def reset_sheet(cfg, csv_file: Path, state_file: Path, logger):
         ws.clear()
         logger.info("Sheet '%s' cleared", worksheet_name)
     except gspread.exceptions.WorksheetNotFound:
-        pass
+        ws = sh.add_worksheet(title=worksheet_name, rows=10000, cols=20)
+
+    # Explicitly write the header right after clearing — don't rely on detection
+    if csv_file.exists():
+        with open(csv_file, newline="") as f:
+            header = next(csv.reader(f), None)
+        if header:
+            ws.update([header], "A1", value_input_option="RAW")
+            logger.info("Header written to sheet")
 
     if state_file.exists():
         state_file.unlink()
