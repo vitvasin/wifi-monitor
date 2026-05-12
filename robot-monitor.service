@@ -7,6 +7,7 @@ Wants=network-online.target
 Type=simple
 User=smr
 WorkingDirectory=/home/smr/workspaces/wifi-monitor
+Environment=ROS_DOMAIN_ID=41
 ExecStart=/bin/bash -c 'source /opt/ros/jazzy/setup.bash && exec /home/smr/workspaces/wifi-monitor/.venv/bin/python3 /home/smr/workspaces/wifi-monitor/robot_monitor_node.py'
 Restart=on-failure
 RestartSec=15

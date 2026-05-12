@@ -96,10 +96,9 @@ def sync_to_sheets(cfg, csv_file: Path, state_file: Path, logger):
 
     new_rows = data_rows[last_synced:]
 
-    # Write header only when sheet is empty
     sheet_rows = ws.get_all_values()
-    if not sheet_rows:
-        ws.append_row(header, value_input_option="RAW")
+    if not sheet_rows or sheet_rows[0] != header:
+        ws.insert_row(header, 1, value_input_option="RAW")
         logger.info("Header written to sheet")
 
     if not new_rows:
@@ -163,8 +162,10 @@ def sync_robot_events(cfg, events_file: Path, state_file: Path, logger):
     data_rows = reader[1:]
     new_rows = data_rows[last_synced:]
 
-    if not ws.get_all_values():
-        ws.append_row(header, value_input_option="RAW")
+    sheet_rows = ws.get_all_values()
+    if not sheet_rows or sheet_rows[0] != header:
+        ws.insert_row(header, 1, value_input_option="RAW")
+        logger.info("Header written to Robot Events sheet")
 
     if not new_rows:
         logger.debug("No new robot events to sync")
