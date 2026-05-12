@@ -6,6 +6,13 @@ internet_port = 53
 timeout = 3
 log_level = INFO
 
+[robot_monitor]
+enabled = true
+worksheet_name = Robot Events
+sync_interval = 300
+# Only log setpoint change if moved more than this (meters)
+setpoint_change_threshold = 0.05
+
 [sheets]
 enabled = true
 # auth_mode: service_account | oauth

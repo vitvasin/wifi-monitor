@@ -1,0 +1,17 @@
+[Unit]
+Description=Robot Usage Monitor
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=smr
+WorkingDirectory=/home/smr/workspaces/wifi-monitor
+ExecStart=/bin/bash -c 'source /opt/ros/jazzy/setup.bash && exec /home/smr/workspaces/wifi-monitor/.venv/bin/python3 /home/smr/workspaces/wifi-monitor/robot_monitor_node.py'
+Restart=on-failure
+RestartSec=15
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

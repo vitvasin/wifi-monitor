@@ -112,6 +112,70 @@ def sync_to_sheets(cfg, csv_file: Path, state_file: Path, logger):
     logger.info("Synced %d new rows to Google Sheets (%d total)", len(new_rows), last_synced)
 
 
+def sync_robot_events(cfg, events_file: Path, state_file: Path, logger):
+    """Append new robot_events.csv rows to a separate 'Robot Events' worksheet."""
+    import gspread
+
+    base_dir = events_file.parent.parent
+    spreadsheet_id = cfg.get("sheets", "spreadsheet_id", fallback="").strip()
+    worksheet_name = cfg.get("robot_monitor", "worksheet_name", fallback="Robot Events")
+    auth_mode = cfg.get("sheets", "auth_mode", fallback="service_account")
+
+    creds_file = cfg.get("sheets", "credentials_file", fallback="credentials.json")
+    creds_path = Path(creds_file) if Path(creds_file).is_absolute() else base_dir / creds_file
+
+    if not spreadsheet_id:
+        logger.warning("sheets.spreadsheet_id not set, skipping robot events sync")
+        return
+    if not creds_path.exists():
+        logger.warning("Credentials file not found: %s", creds_path)
+        return
+
+    if auth_mode == "oauth":
+        creds = _auth_oauth(creds_path, base_dir / ".oauth_token.json")
+    else:
+        creds = _auth_service_account(creds_path)
+
+    gc = gspread.authorize(creds)
+    sh = gc.open_by_key(spreadsheet_id)
+    try:
+        ws = sh.worksheet(worksheet_name)
+    except gspread.exceptions.WorksheetNotFound:
+        ws = sh.add_worksheet(title=worksheet_name, rows=10000, cols=10)
+
+    last_synced = 0
+    if state_file.exists():
+        try:
+            last_synced = int(state_file.read_text().strip())
+        except ValueError:
+            last_synced = 0
+
+    if not events_file.exists():
+        return
+
+    with open(events_file, newline="") as f:
+        reader = list(csv.reader(f))
+
+    if not reader:
+        return
+
+    header = reader[0]
+    data_rows = reader[1:]
+    new_rows = data_rows[last_synced:]
+
+    if not ws.get_all_values():
+        ws.append_row(header, value_input_option="RAW")
+
+    if not new_rows:
+        logger.debug("No new robot events to sync")
+        return
+
+    ws.append_rows(new_rows, value_input_option="RAW")
+    last_synced += len(new_rows)
+    state_file.write_text(str(last_synced))
+    logger.info("Synced %d robot events to Google Sheets (%d total)", len(new_rows), last_synced)
+
+
 def reset_sheet(cfg, csv_file: Path, state_file: Path, logger):
     """Clear the sheet, reset sync state, and re-sync from scratch."""
     import gspread
